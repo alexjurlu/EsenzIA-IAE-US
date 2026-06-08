@@ -1,0 +1,75 @@
+---
+title: "EsenzIA: Sistema Inteligente de Triaje para Atención al Cliente"
+author: "Alex"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+```
+
+# 1. Introducción y Contexto del Proyecto
+Esenzia es una marca de moda joven sevillana en pleno crecimiento. Este incremento de volumen conlleva una saturación en los canales de atención al cliente. El objetivo de este proyecto, denominado **EsenzIA**, es crear un motor capaz de clasificar automáticamente las incidencias y priorizar aquellas que requieren una respuesta inmediata.
+
+# 2. Ingesta y Procesamiento de Datos
+El sistema utiliza un pipeline que conecta con **Zoho Mail** y registros históricos de **Notion**. Para este proyecto hemos trabajado con un corpus de **325 registros históricos** etiquetados manualmente.
+
+## 2.1 Preprocesamiento de Lenguaje Natural (NLP)
+Para preparar los datos, he diseñado un flujo de limpieza en Python (NLTK) que realiza:
+- **Limpieza**: Eliminación de caracteres especiales y conversión a minúsculas.
+- **Stemming**: Reducción de palabras a su raíz (ej. "enviado" -> "envi").
+- **Filtrado**: Eliminación de *stopwords* en castellano.
+
+# 3. Desarrollo de la Inteligencia Artificial
+La arquitectura de EsenzIA ha evolucionado de un modelo simple a una comparativa avanzada de **8 escenarios competitivos**.
+
+## 3.1 Vectorización de Texto
+He comparado dos enfoques fundamentales:
+1. **Modelo Base (Bag of Words)**: Basado en la frecuencia de palabras. Es el punto de partida sencillo.
+2. **Modelo Avanzado (Word2Vec)**: Utiliza embeddings densos para capturar relaciones semánticas (significado) entre palabras.
+
+## 3.2 Algoritmos de Clasificación
+He evaluado el rendimiento de 4 algoritmos bajo ambas técnicas de vectorización:
+- **Naive Bayes**: Especialmente efectivo en el modelo base.
+- **SVM (Support Vector Machine)**: Muy robusto en espacios vectoriales densos.
+- **KNN (K-Nearest Neighbors)**: Basado en la cercanía de los casos en el espacio.
+- **LSTM (Long Short-Term Memory)**: Redes neuronales recurrentes para capturar secuencias complejas.
+
+# 4. Evaluación y Resultados
+Para asegurar la fiabilidad, he aplicado **estratificación** en el reparto de datos (80% entrenamiento / 20% test), garantizando que las categorías con pocos ejemplos (como *Pedidos Duplicados*) estén siempre representadas.
+
+## 4.1 Métricas Clave
+Tras investigar cómo medir el éxito del modelo, he concluido que el **Recall** es vital:
+- **Accuracy**: Mide el porcentaje total de aciertos.
+- **Recall**: Mide la capacidad de "cazar" todos los casos reales de una categoría, funcionando como una red de seguridad para no olvidar incidencias críticas.
+
+```{r simulacion_resultados, echo=FALSE}
+# Simulación de los resultados de la comparativa para el informe visual
+resultados <- data.frame(
+  Modelo = c("LSTM", "Naive Bayes", "SVM", "KNN"),
+  Accuracy = c(0.8462, 0.8154, 0.7846, 0.7846),
+  Tecnica = "Sin Word2Vec"
+)
+
+ggplot(resultados, aes(x=reorder(Modelo, -Accuracy), y=Accuracy, fill=Modelo)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  labs(title="Comparativa de Accuracy por Modelo (Escenario Base)", x="Algoritmo", y="Exactitud")
+```
+
+# 5. Análisis de Sentimiento y Urgencia
+Utilizando un modelo pre-entrenado basado en **RoBERTa (pysentimiento)**, el sistema etiqueta cada correo con su carga emocional. La **Prioridad ALTA** se determina mediante la combinación de un sentimiento negativo y una categoría crítica, optimizando así los tiempos de respuesta.
+
+# 6. Ética y Privacidad (RGPD)
+El sistema ha sido diseñado bajo principios de privacidad. He implementado un motor de **anonimización** que:
+- Reemplaza IDs de pedidos reales por hashes MD5.
+- Oculta el contenido literal de los mensajes en el visor público.
+
+# 7. Conclusiones
+EsenzIA demuestra que la IA puede transformar una bandeja de entrada caótica en un panel operativo estructurado. La comparativa de modelos revela que, aunque los modelos más sencillos son competitivos, el uso de redes neuronales y embeddings semánticos ofrece una visión más profunda y robusta del comportamiento de los clientes.
